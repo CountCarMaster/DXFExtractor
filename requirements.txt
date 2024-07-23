@@ -1,0 +1,5 @@
+ezdxf==1.1.4
+geopandas==0.12.2
+numpy==1.24.3
+PyYAML==6.0.1
+Shapely==2.0.5
