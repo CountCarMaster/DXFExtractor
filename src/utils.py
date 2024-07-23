@@ -3,6 +3,7 @@ import ezdxf
 from src.entityClass import Pier, GroundLine
 import geopandas as gpd
 from shapely.geometry import Polygon
+import matplotlib.pyplot as plt
 
 def calculate_polygon_area(coords):
     n = len(coords)
@@ -70,10 +71,25 @@ def saveData(ground, pierList, config):
 
     gdf = gpd.GeoDataFrame(
         {'name': names, 'area': areas, 'geometry': geometries},
-        crs="EPSG:4326"
+        crs="EPSG:3857"
     )
 
     gdf.to_file(config['outputFileName'], driver='GeoJSON')
+    # gdf.boundary.plot(edgecolor='black', aspect=1)
+    # plt.show()
+
+def changeCoordinate(pierList, ground):
+    xMin = ground.xMin
+    yMin = ground.yMin
+    for pier in pierList:
+        xMin = min(pier.xMin, xMin)
+        yMin = min(pier.yMin, yMin)
+    ground.data[:, 0] -= xMin
+    ground.data[:, 1] -= yMin
+    for pier in pierList:
+        pier.data[:, 0] -= xMin
+        pier.data[:, 1] -= yMin
+    return pierList, ground
 
 class FileError(Exception):
     def __init__(self, message):

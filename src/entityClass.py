@@ -50,6 +50,25 @@ class GroundLine(EntityClassBase):
             else:
                 tmp.append(np.array([self.data[i][0] + (self.data[i + 1][0] - self.data[i][0]) * ((floodY - self.data[i][1]) / (self.data[i + 1][1] - self.data[i][1])), floodY]))
         self.data = np.array(tmp)
+    def is_abovePier(self, pierList):
+        for point in self.data:
+            k = 0
+            for pier in pierList:
+                if point[0] < pier.xMin or point[0] > pier.xMax:
+                    k += 1
+                    continue
+                tmp = []
+                for i in range(pier.data.shape[0] - 1):
+                    tmp.append(pier.data[i])
+                    if point[0] < min(pier.data[i][0], pier.data[i + 1][0]) or point[0] > max(pier.data[i][0], pier.data[i + 1][0]):
+                        continue
+                    yy = pier.data[i][1] + (pier.data[i + 1][1] - pier.data[i][1]) * ((point[0] - pier.data[i][0]) / (pier.data[i + 1][0] - pier.data[i][0]))
+                    if yy < point[1]:
+                        tmp.append(point)
+                tmp.append(pier.data[-1])
+                pierList[k].data = np.array(tmp)
+                k += 1
+        return pierList
 
 class Pier(EntityClassBase):
     def __init__(self, data: np.array):

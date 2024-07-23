@@ -22,4 +22,3 @@ python main.py --file-path ./data/1.dwg
 
 ## TODO:
 - Add the hole algorithm of the pier
-- Improve the cutting algorithm between piers and the ground line.

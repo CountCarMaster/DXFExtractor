@@ -16,4 +16,7 @@ if __name__ == '__main__':
         raise FileError('The file does not exist')
 
     ground, floodY, pierList = dataLoad(args.file_path, config)
+    pierList = sorted(pierList, key=lambda pier: pier.xMin)
+    pierList = ground.is_abovePier(pierList)
+    pierList, ground = changeCoordinate(pierList, ground)
     saveData(ground, pierList, config)
