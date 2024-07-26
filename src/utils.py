@@ -51,6 +51,7 @@ def saveData(ground, pierList, config):
     names = []
     geometries = []
     areas = []
+    types = []
     groundData = ground.data.tolist()
     groundArea = calculate_polygon_area(groundData)
     groundData.append(groundData[0])
@@ -58,23 +59,34 @@ def saveData(ground, pierList, config):
     names.append(config['groundOutputName'])
     geometries.append(groundPoly)
     areas.append(groundArea)
+    types.append(config['groundType'])
 
     # pier
+    k = 0
     for pier in pierList:
+        k += 1
         pierData = pier.data.tolist()
         pierArea = calculate_polygon_area(pierData)
         pierData.append(pierData[0])
         pierPoly = Polygon(pierData)
-        names.append(config['pierOutputName'])
+        names.append(config['pierOutputName'] + str(k))
         geometries.append(pierPoly)
         areas.append(pierArea)
+        types.append(config['pierType'])
 
     gdf = gpd.GeoDataFrame(
-        {'name': names, 'area': areas, 'geometry': geometries},
+        {'name': names, 'type': types, 'area': areas, 'geometry': geometries},
         crs="EPSG:3857"
     )
 
     gdf.to_file(config['outputFileName'], driver='GeoJSON')
+    file = open(config['outputFileName'], 'r')
+    content = file.read()
+    file.close()
+    newContent = content.replace('Polygon', 'Polyline')
+    file = open(config['outputFileName'], 'w')
+    file.write(newContent)
+    file.close()
     # gdf.boundary.plot(edgecolor='black', aspect=1)
     # plt.show()
 

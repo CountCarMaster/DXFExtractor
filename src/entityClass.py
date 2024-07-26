@@ -45,7 +45,7 @@ class GroundLine(EntityClassBase):
             elif self.data[i][1] < floodY and self.data[i + 1][1] < floodY:
                 tmp.append(self.data[i + 1])
             elif self.data[i][1] >= floodY and self.data[i + 1][1] < floodY:
-                tmp.append(np.array([self.data[i][0] + (self.data[i + 1][0] - self.data[i][0]) * ((floodY - self.data[i + 1][1]) / (self.data[i][1] - self.data[i + 1][1])), floodY]))
+                tmp.append(np.array([self.data[i][0] + (self.data[i + 1][0] - self.data[i][0]) * ((self.data[i][1] - floodY) / (self.data[i][1] - self.data[i + 1][1])), floodY]))
                 tmp.append(self.data[i + 1])
             else:
                 tmp.append(np.array([self.data[i][0] + (self.data[i + 1][0] - self.data[i][0]) * ((floodY - self.data[i][1]) / (self.data[i + 1][1] - self.data[i][1])), floodY]))
