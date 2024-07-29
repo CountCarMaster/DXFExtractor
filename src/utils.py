@@ -39,11 +39,19 @@ def dataLoad(dataPath, config) :
                 li.append(i)
             li = np.array(li)[:, :2]
             ground = GroundLine(li)
+    tmp = []
     for p in pierList:
         p.fitFlood(floodY)
+        if(p.data != []):
+            tmp.append(p)
+    pierList = tmp
     ground.fit(floodY)
+    tmp = []
     for p in pierList:
-        p.fitGround(ground)
+        aa = p.fitGround(ground)
+        if(aa != False):
+            tmp.append(p)
+    pierList = tmp
     return ground, floodY, pierList
 
 def saveData(ground, pierList, config):
@@ -61,15 +69,35 @@ def saveData(ground, pierList, config):
     areas.append(groundArea)
     types.append(config['groundType'])
 
+    for pier in pierList:
+        if pier.is_main == False:
+            continue
+        for pier2 in pierList:
+            if pier == pier2:
+                continue
+            if pier2.is_main == False:
+                continue
+            if pier.xMin <= pier2.xMin and pier.xMax >= pier2.xMax and pier.yMin <= pier2.yMin and pier.yMax >= pier2.yMax:
+                pier.fittings.append(pier2)
+                pier2.is_main = False
+
     # pier
     k = 0
+    kk = 0
     for pier in pierList:
-        k += 1
         pierData = pier.data.tolist()
-        pierArea = calculate_polygon_area(pierData)
+        if pier.is_main == True:
+            k += 1
+            pierArea = calculate_polygon_area(pierData)
+            for hole in pier.fittings:
+                pierArea -= calculate_polygon_area(hole.data.tolist())
+            names.append(config['pierOutputName'] + str(k))
+        else:
+            kk += 1
+            pierArea = calculate_polygon_area(pierData)
+            names.append(config['holeOutputName'] + str(kk))
         pierData.append(pierData[0])
         pierPoly = Polygon(pierData)
-        names.append(config['pierOutputName'] + str(k))
         geometries.append(pierPoly)
         areas.append(pierArea)
         types.append(config['pierType'])
@@ -87,8 +115,8 @@ def saveData(ground, pierList, config):
     file = open(config['outputFileName'], 'w')
     file.write(newContent)
     file.close()
-    # gdf.boundary.plot(edgecolor='black', aspect=1)
-    # plt.show()
+    gdf.boundary.plot(edgecolor='black', aspect=1)
+    plt.show()
 
 def changeCoordinate(pierList, ground):
     xMin = ground.xMin

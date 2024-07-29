@@ -1,6 +1,7 @@
 floodLayerName: "设计洪水位"
 groundLayerName: "地面线"
 pierLayerName: "桥墩线"
+holeOutputName: "hole"
 groundOutputName: "bottomLine"
 pierOutputName: "stand"
 groundType: "base"

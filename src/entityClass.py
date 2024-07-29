@@ -74,6 +74,9 @@ class Pier(EntityClassBase):
     def __init__(self, data: np.array):
         super().__init__(data)
         self.is_under = np.zeros(data.shape[0])
+        self.beforeGround = None
+        self.is_main = True
+        self.fittings = []
 
     def fitFlood(self, floodY: float):
         tmp = []
@@ -90,10 +93,15 @@ class Pier(EntityClassBase):
         self.data = np.array(tmp)
     def is_underGround(self, x, y, ground: GroundLine):
         ans = None
-        for i in range(ground.data.shape[0] + 1):
+        for i in range(ground.data.shape[0]):
             if(x >= ground.data[i][0] and x <= ground.data[i + 1][0]):
                 ans = i
                 break
+        # print(x)
+        # print(ground.data)
+        # print(ans)
+        if ans == None:
+            return True
         yy = ground.data[ans][1] + (ground.data[ans + 1][1] - ground.data[ans][1]) * ((x - ground.data[ans][0]) / (ground.data[ans + 1][0] - ground.data[ans][0]))
         if(y <= yy) :
             return True
@@ -102,6 +110,14 @@ class Pier(EntityClassBase):
     def fitGround(self, ground: GroundLine):
         crossTmp = []
         tmp = []
+        hajime = None
+        flag = False
+        for i in range(self.data.shape[0]):
+            if self.is_underGround(self.data[i][0], self.data[i][1], ground) == False:
+                flag = True
+                break
+        if flag == False:
+            return False
         for i in range(self.data.shape[0]):
             crossTmp.append([])
         for i in range(ground.data.shape[0] - 1):
@@ -111,15 +127,34 @@ class Pier(EntityClassBase):
                 crossAns = line_intersection(lineGround, linePier)
                 if crossAns is None:
                     continue
-                crossTmp[j].append(crossAns)
+                crossTmp[j].append([i, crossAns])
         for i in range(self.data.shape[0]):
-            if(self.is_underGround(self.data[i][0], self.data[i][1], ground) == True):
+            if hajime is None and len(crossTmp[i]) % 2 == 1:
+                hajime = crossTmp[i][-1][0]
+            elif hajime is not None and len(crossTmp[i]) % 2 == 0 and len(crossTmp[i]) > 0:
+                if hajime < crossTmp[i][0][0]:
+                    for kk in range(hajime + 1, crossTmp[i][0][0] + 1):
+                        tmp.append(ground.data[kk])
+                else:
+                    for kk in range(hajime + 1, crossTmp[i][0][0] + 1, -1):
+                        tmp.append(ground.data[kk])
+                hajime = crossTmp[i][-1][0]
+            elif hajime is not None and len(crossTmp[i]) % 2 == 1:
+                if hajime < crossTmp[i][0][0]:
+                    for kk in range(hajime + 1, crossTmp[i][0][0] + 1):
+                        tmp.append(ground.data[kk])
+                else:
+                    for kk in range(hajime + 1, crossTmp[i][0][0] + 1, -1):
+                        tmp.append(ground.data[kk])
+                hajime = None
+
+            if self.is_underGround(self.data[i][0], self.data[i][1], ground) == True :
                 for j in crossTmp[i]:
-                    tmp.append(j)
+                    tmp.append(j[1])
             else:
                 tmp.append(self.data[i])
                 for j in crossTmp[i]:
-                    tmp.append(j)
+                    tmp.append(j[1])
         self.data = np.array(tmp)
 
 

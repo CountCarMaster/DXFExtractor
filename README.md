@@ -19,6 +19,3 @@ For example:
 ```bash
 python main.py --file-path ./data/1.dwg
 ```
-
-## TODO:
-- Add the hole algorithm of the pier

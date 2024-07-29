@@ -5,7 +5,7 @@ from src.utils import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="DWGExtractor")
-    parser.add_argument('--file-path', type=str, default='./data/1.dxf')
+    parser.add_argument('--file-path', type=str, default='./data/2.dxf')
     parser.add_argument('--yaml-path', type=str, default='./config.yaml')
     args = parser.parse_args()
 
